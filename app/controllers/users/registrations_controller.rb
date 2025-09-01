@@ -5,7 +5,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # before_action :configure_account_update_params, only: [:update]
   respond_to :json
 
-
+  #esto es para desactivar el inicio de sesion automatico
   def sign_up(resource_name, resource)
   end
 
@@ -16,6 +16,15 @@ class Users::RegistrationsController < Devise::RegistrationsController
       render json: { errors: resource.errors }, status: :unprocessable_entity
     end
   end
+
+  private 
+    def sign_up_params
+      params.require(:user).permit(:email, :password, :name, :last_name, :birthday)
+    end
+
+    def account_update_params
+      params.require(:user).permit(:email, :password, :name, :last_name, :birthday)
+    end
   # GET /resource/sign_up
   # def new
   #   super
