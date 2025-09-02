@@ -10,6 +10,12 @@ class Users::SessionsController < Devise::SessionsController
       render json: { errors: resource.errors }, status: :unprocessable_entity
     end
   end
+
+  private
+
+  def respond_to_on_destroy
+    render json: { message: "Sesión cerrada correctamente." }, status: :ok
+  end
   # GET /resource/sign_in
   # def new
   #   super
