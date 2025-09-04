@@ -48,6 +48,25 @@ class FriendshipsController < ApplicationController
     end
   end
 
+  # GET /friendships/status/:user_id
+  # Verifica el estado de la amistad entre el usuario actual y otro usuario.
+  def status
+    user_a_id = current_user.id
+    user_b_id = params[:user_id]
+
+    # Es una buena práctica manejar el caso en que un usuario se busca a sí mismo.
+    if user_a_id.to_s == user_b_id
+      return render json: { error: 'Cannot check friendship status with yourself' }, status: :bad_request
+    end
+
+    friendship = Friendship.where(user_id: user_a_id, friend_id: user_b_id)
+                           .or(Friendship.where(user_id: user_b_id, friend_id: user_a_id))
+                           .first
+
+    # Si se encuentra una amistad, la devuelve. Si no, devuelve 'null' con un estado 200 OK.
+    render json: friendship, status: :ok
+  end
+
   private
 
   def set_friendship

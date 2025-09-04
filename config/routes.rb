@@ -19,7 +19,9 @@ Rails.application.routes.draw do
   end
 
   # Rutas para el sistema de amistades
-  resources :friendships, only: [:index, :create, :update, :destroy]
+  resources :friendships, only: [:index, :create, :update, :destroy] do
+    get 'status/:user_id', on: :collection, to: 'friendships#status'
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
