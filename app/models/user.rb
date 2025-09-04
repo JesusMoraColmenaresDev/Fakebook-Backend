@@ -4,23 +4,29 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
 
-  # Solicitudes de amistad que este usuario ha enviado
-  has_many :sent_friend_requests,
-           foreign_key: :user_id,
-           class_name: 'Friendship',
-           dependent: :destroy
+  # --- ASOCIACIONES DE AMISTAD ---
 
-  # Solicitudes de amistad que este usuario ha recibido
-  has_many :received_friend_requests,
-           foreign_key: :friend_id,
-           class_name: 'Friendship',
-           dependent: :destroy
+  # Solicitudes de amistad que este usuario ha enviado.
+  # Si se elimina el usuario, también se eliminan estas solicitudes.
+  has_many :friendships, dependent: :destroy
 
-  # Método para obtener una lista de todos los amigos (amistades aceptadas)
+  # Solicitudes de amistad que este usuario ha recibido.
+  # Se necesita especificar la clase y la clave foránea porque Rails no puede adivinarlo.
+  has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy
+
+  # --- MÉTODOS DE AYUDA ---
+
+  # Devuelve una lista de todos los amigos confirmados.
   def friends
-    #con el pluck solo obtendria los id de los registros qeu cumplen con la condicion del where 
-    sent_friend_ids = Friendship.where(user_id: id, status: :accepted).pluck(:friend_id)
-    received_friend_ids = Friendship.where(friend_id: id, status: :accepted).pluck(:user_id)
-    User.where(id: sent_friend_ids + received_friend_ids)
+    friends_i_sent_request_to = Friendship.where(user_id: id, status: :accepted).pluck(:friend_id)
+    friends_i_received_request_from = Friendship.where(friend_id: id, status: :accepted).pluck(:user_id)
+
+    friend_ids = friends_i_sent_request_to + friends_i_received_request_from
+    User.where(id: friend_ids)
+  end
+
+  # Devuelve una lista de usuarios que han enviado una solicitud pendiente a este usuario.
+  def pending_requests
+    inverse_friendships.pending
   end
 end

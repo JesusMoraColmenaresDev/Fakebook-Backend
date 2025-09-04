@@ -11,9 +11,14 @@ Rails.application.routes.draw do
   }
 
   get '/current_user', to: 'current_user#index'
-  resources :users, only: [:index, :show]
+  
+  resources :users, only: [:index, :show] do
+    member do
+      get :friends
+    end
+  end
 
-  # Rutas para gestionar las amistades
+  # Rutas para el sistema de amistades
   resources :friendships, only: [:index, :create, :update, :destroy]
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
