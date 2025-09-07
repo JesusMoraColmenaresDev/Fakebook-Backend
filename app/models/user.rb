@@ -14,6 +14,9 @@ class User < ApplicationRecord
   # Se necesita especificar la clase y la clave foránea porque Rails no puede adivinarlo.
   has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy
 
+  # Un usuario puede tener muchas publicaciones. Si se elimina el usuario, se eliminan sus publicaciones.
+  has_many :posts, dependent: :destroy
+
   # --- MÉTODOS DE AYUDA ---
 
   # Devuelve una lista de todos los amigos confirmados.

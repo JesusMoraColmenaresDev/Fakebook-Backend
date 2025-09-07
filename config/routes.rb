@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  get "posts/index"
+  get "posts/show"
+  get "posts/create"
+  get "posts/update"
+  get "posts/destroy"
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
     sign_out: 'logout',
@@ -21,6 +26,9 @@ Rails.application.routes.draw do
   resources :friendships, only: [:index, :create, :update, :destroy] do
     get 'status/:user_id', on: :collection, to: 'friendships#status'
   end
+
+  # Rutas para las publicaciones (posts)
+  resources :posts, only: [:index, :show, :create, :update, :destroy]
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
