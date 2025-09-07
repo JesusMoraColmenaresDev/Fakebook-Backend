@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get "users/index"
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
     sign_out: 'logout',
@@ -12,7 +11,7 @@ Rails.application.routes.draw do
 
   get '/current_user', to: 'current_user#index'
   
-  resources :users, only: [:index, :show] do
+  resources :users, only: [:index, :show, :destroy] do
     member do
       get :friends
     end

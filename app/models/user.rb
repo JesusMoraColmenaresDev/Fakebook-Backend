@@ -25,6 +25,12 @@ class User < ApplicationRecord
     User.where(id: friend_ids)
   end
 
+  # Devuelve los registros de amistad aceptados donde el usuario está involucrado.
+  def accepted_friendships
+    Friendship.where(status: :accepted)
+              .where("user_id = :id OR friend_id = :id", id: id)
+  end
+
   # Devuelve una lista de usuarios que han enviado una solicitud pendiente a este usuario.
   def pending_requests
     inverse_friendships.pending

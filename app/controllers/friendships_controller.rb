@@ -5,12 +5,11 @@ class FriendshipsController < ApplicationController
   # Permite filtrar por estado: /friendships?status=accepted o /friendships?status=pending
   def index
     if params[:status] == 'pending'
-      @pending_requests = current_user.pending_requests
-      render json: @pending_requests
+      render json: current_user.pending_requests
     else
       # Por defecto, o si status=accepted, devuelve los amigos confirmados.
-      @friends = current_user.friends
-      render json: @friends
+      # Devuelve los registros de amistad aceptados.
+      render json: current_user.accepted_friendships
     end
   end
 

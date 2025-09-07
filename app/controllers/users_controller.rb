@@ -21,4 +21,13 @@ class UsersController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render json: { error: "User not found" }, status: :not_found
   end
+
+  # DELETE /users/:id
+  def destroy
+    @user = User.find(params[:id])
+    @user.destroy
+    render json: { message: "User deleted successfully" }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "User not found" }, status: :not_found
+  end
 end
