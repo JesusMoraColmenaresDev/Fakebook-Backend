@@ -30,25 +30,51 @@ class PostsController < ApplicationController
     # Usamos current_user.posts.build para asociar el post automáticamente.
     @post = current_user.posts.build(post_params)
     if @post.save
-      render json: @post, status: :created, location: @post
+      render json: @post, status: :created
     else
       render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
+  # PATCH/PUT /posts/:id
   def update
+    # Verificamos que el usuario actual sea el autor del post.
+    if @post.user == current_user
+      if @post.update(post_params)
+        # Si la actualización es exitosa, devolvemos el post actualizado.
+        render json: @post, include: { user: { only: [:id, :name, :last_name] } }
+      else
+        # Si hay errores de validación, los mostramos.
+        render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
+      end
+    else
+      # Si el usuario no es el autor, devolvemos un error de autorización.
+      render json: { error: 'Not authorized' }, status: :unauthorized
+    end
   end
 
+  # DELETE /posts/:id
   def destroy
+    # Verificamos que el usuario actual sea el autor del post.
+    if @post.user == current_user
+      @post.destroy
+      # Respondemos con 204 No Content, el estándar para un DELETE exitoso.
+      head :no_content
+    else
+      render json: { error: 'Not authorized' }, status: :unauthorized
+    end
   end
+
+  private
 
   def set_post
-    @post = Post.find(params[:id])
+    @post = Post.find_by(id: params[:id])
+    # Si el post no se encuentra, devolvemos un error 404.
+    render json: { error: 'Post not found' }, status: :not_found unless @post
   end
 
   def post_params
     # No es necesario permitir :user_id, ya que lo obtenemos de current_user.
     params.require(:post).permit(:content, :post_picture)
   end
-  
 end
