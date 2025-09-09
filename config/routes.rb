@@ -10,6 +10,9 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
+  # Ruta para el feed de noticias combinado
+  get '/feed', to: 'feeds#index'
+
   get '/current_user', to: 'current_user#index'
   
   resources :users, only: [:index, :show, :destroy] do
