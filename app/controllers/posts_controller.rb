@@ -1,6 +1,7 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_post, only: [:show, :update, :destroy]
+  before_action :authorize_user, only: [:update, :destroy]
 
   # GET /posts (para el feed de noticias)
   # GET /posts?user_id=:id (para los posts de un usuario específico)
@@ -38,31 +39,20 @@ class PostsController < ApplicationController
 
   # PATCH/PUT /posts/:id
   def update
-    # Verificamos que el usuario actual sea el autor del post.
-    if @post.user == current_user
-      if @post.update(post_params)
-        # Si la actualización es exitosa, devolvemos el post actualizado.
-        render json: @post, include: { user: { only: [:id, :name, :last_name] } }
-      else
-        # Si hay errores de validación, los mostramos.
-        render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
-      end
+    if @post.update(post_params)
+      # Si la actualización es exitosa, devolvemos el post actualizado.
+      render json: @post, include: { user: { only: [:id, :name, :last_name] } }
     else
-      # Si el usuario no es el autor, devolvemos un error de autorización.
-      render json: { error: 'Not authorized' }, status: :unauthorized
+      # Si hay errores de validación, los mostramos.
+      render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # DELETE /posts/:id
   def destroy
-    # Verificamos que el usuario actual sea el autor del post.
-    if @post.user == current_user
-      @post.destroy
-      # Respondemos con 204 No Content, el estándar para un DELETE exitoso.
-      head :no_content
-    else
-      render json: { error: 'Not authorized' }, status: :unauthorized
-    end
+    @post.destroy
+    # Respondemos con 204 No Content, el estándar para un DELETE exitoso.
+    head :no_content
   end
 
   private
@@ -76,5 +66,9 @@ class PostsController < ApplicationController
   def post_params
     # No es necesario permitir :user_id, ya que lo obtenemos de current_user.
     params.require(:post).permit(:content, :post_picture)
+  end
+
+  def authorize_user
+    render json: { error: 'Not authorized' }, status: :unauthorized unless @post.user == current_user
   end
 end

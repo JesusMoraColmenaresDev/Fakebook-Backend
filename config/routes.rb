@@ -1,9 +1,5 @@
 Rails.application.routes.draw do
-  get "posts/index"
-  get "posts/show"
-  get "posts/create"
-  get "posts/update"
-  get "posts/destroy"
+  resources :shares
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
     sign_out: 'logout',

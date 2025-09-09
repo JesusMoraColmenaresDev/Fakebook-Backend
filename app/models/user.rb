@@ -17,6 +17,9 @@ class User < ApplicationRecord
   # Un usuario puede tener muchas publicaciones. Si se elimina el usuario, se eliminan sus publicaciones.
   has_many :posts, dependent: :destroy
 
+  has_many :shares, dependent: :destroy
+
+
   # --- MÉTODOS DE AYUDA ---
 
   # Devuelve una lista de todos los amigos confirmados.
