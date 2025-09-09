@@ -1,5 +1,7 @@
 class SharesController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_share, only: [:update, :destroy]
+  before_action :authorize_share_owner, only: [:update, :destroy]
 
   # GET /shares (para el feed de shares)
   # GET /shares?user_id=:id (para los shares de un usuario específico)
@@ -32,10 +34,39 @@ class SharesController < ApplicationController
     end
   end
 
+  # PATCH/PUT /shares/:id
+  def update
+    # El usuario solo puede actualizar el 'content' de su share.
+    if @share.update(update_share_params)
+      render json: @share.as_json(json_options)
+    else
+      render json: { errors: @share.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /shares/:id
+  def destroy
+    @share.destroy
+    head :no_content
+  end
+
   private
+
+  def set_share
+    @share = Share.find_by(id: params[:id])
+    render json: { error: 'Share not found' }, status: :not_found unless @share
+  end
+
+  def authorize_share_owner
+    render json: { error: 'Not authorized' }, status: :unauthorized unless @share.user == current_user
+  end
 
   def share_params # Permitimos que el post_id venga en el cuerpo de la petición.
     params.require(:share).permit(:content, :post_id)
+  end
+
+  def update_share_params # Solo permitimos actualizar el contenido del share.
+    params.require(:share).permit(:content)
   end
 
   # Método privado para centralizar las opciones de serialización JSON.
