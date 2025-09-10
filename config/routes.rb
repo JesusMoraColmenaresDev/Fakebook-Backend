@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :shares
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
     sign_out: 'logout',
@@ -27,7 +26,13 @@ Rails.application.routes.draw do
   end
 
   # Rutas para las publicaciones (posts)
-  resources :posts, only: [:index, :show, :create, :update, :destroy]
+  resources :posts, only: [:index, :show, :create, :update, :destroy] do
+    resources :comments, only: [:index, :create]
+  end
+
+  resources :shares, only: [:index, :show, :create, :update, :destroy] do
+    resources :comments, only: [:index, :create]
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -1,6 +1,6 @@
 class SharesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_share, only: [:update, :destroy]
+  before_action :set_share, only: [:show, :update, :destroy]
   before_action :authorize_share_owner, only: [:update, :destroy]
 
   # GET /shares (para el feed de shares)
@@ -19,6 +19,12 @@ class SharesController < ApplicationController
       @shares = Share.where(user_id: user_and_friend_ids).includes(post: :user, user: {}).order(created_at: :desc)
     end
     render json: @shares.as_json(json_options)
+  end
+
+  # GET /shares/:id
+  def show
+    # El before_action :set_share ya se encarga de encontrar el @share.
+    render json: @share.as_json(json_options)
   end
 
   def create

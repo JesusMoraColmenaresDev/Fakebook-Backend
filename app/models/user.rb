@@ -17,6 +17,9 @@ class User < ApplicationRecord
   # Un usuario puede tener muchas publicaciones. Si se elimina el usuario, se eliminan sus publicaciones.
   has_many :posts, dependent: :destroy
 
+  # Un usuario puede tener muchos comentarios. Si se elimina el usuario, se eliminan sus comentarios.
+  has_many :comments, dependent: :destroy
+
   has_many :shares, dependent: :destroy
 
 
