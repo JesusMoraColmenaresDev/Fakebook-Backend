@@ -34,6 +34,15 @@ Rails.application.routes.draw do
     resources :comments, only: [:index, :create]
   end
 
+  # --- RUTAS PARA MENSAJERÍA ---
+  # Rutas para conversaciones y sus mensajes anidados
+  resources :conversations, only: [:index, :create] do
+    resources :messages, only: [:index]
+  end
+
+  # --- RUTA PARA ACTION CABLE ---
+  mount ActionCable.server => '/cable'
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

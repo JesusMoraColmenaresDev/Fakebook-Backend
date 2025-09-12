@@ -22,8 +22,17 @@ class User < ApplicationRecord
 
   has_many :shares, dependent: :destroy
 
+  # --- ASOCIACIONES DE MENSAJERÍA ---
+  # Conversaciones que este usuario ha iniciado
+  has_many :started_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy
+  # Conversaciones que este usuario ha recibido
+  has_many :received_conversations, class_name: 'Conversation', foreign_key: 'receiver_id', dependent: :destroy
+  # Mensajes que este usuario ha enviado
+  has_many :messages, dependent: :destroy
+
 
   # --- MÉTODOS DE AYUDA ---
+
 
   # Devuelve una lista de todos los amigos confirmados.
   def friends
@@ -32,6 +41,11 @@ class User < ApplicationRecord
 
     friend_ids = friends_i_sent_request_to + friends_i_received_request_from
     User.where(id: friend_ids)
+  end
+
+  # Devuelve todas las conversaciones en las que el usuario está involucrado.
+  def conversations
+    Conversation.where("sender_id = :id OR receiver_id = :id", id: id)
   end
 
   # Devuelve los registros de amistad aceptados donde el usuario está involucrado.
