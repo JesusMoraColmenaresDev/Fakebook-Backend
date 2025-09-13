@@ -25,6 +25,27 @@ class ChatChannel < ApplicationCable::Channel
     # Ahora, retransmite (broadcast) el mensaje a todos los que estén
     # escuchando en este stream. Usamos la misma serialización que en la API.
     ChatChannel.broadcast_to(@conversation, message.as_json(include: { user: { only: [:id, :name, :last_name] } }))
+
+    # --- LÓGICA DE NOTIFICACIÓN AÑADIDA ---
+    # 1. Identificar al otro usuario en la conversación.
+    other_user = @conversation.sender_id == current_user.id ? @conversation.receiver : @conversation.sender
+
+    # 2. Forzar la actualización de 'updated_at' en la conversación para que aparezca primero en la lista.
+    @conversation.touch
+
+    # 3. Preparar el payload para el otro usuario, replicando la estructura del ConversationsController.
+    #    El 'unread_count' se calcula desde la perspectiva del 'other_user'.
+    payload = {
+      id: @conversation.id,
+      other_user: { id: current_user.id, name: current_user.name, last_name: current_user.last_name },
+      last_message: message.as_json(only: [:content, :created_at, :user_id]),
+      unread_count: @conversation.messages.where.not(user_id: other_user.id).where(read: false).count,
+      updated_at: @conversation.updated_at
+    }
+
+    # 4. Transmitir el payload al canal privado del otro usuario.
+    #    El servidor actúa como cartero, entregando la notificación al buzón correcto.
+    UserChannel.broadcast_to(other_user, payload)
   end
 
   # Se llama cuando un cliente se desconecta.

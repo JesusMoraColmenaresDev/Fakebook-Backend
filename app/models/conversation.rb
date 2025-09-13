@@ -7,6 +7,9 @@ class Conversation < ApplicationRecord
   # Una conversación tiene muchos mensajes. Si se borra la conversación, se borran los mensajes.
   has_many :messages, dependent: :destroy
 
+  # Asociación para obtener directamente el último mensaje de la conversación.
+  has_one :last_message, -> { order(created_at: :desc) }, class_name: 'Message'
+
   # --- VALIDACIONES ---
   # 1. Evita que un usuario inicie una conversación consigo mismo.
   validate :prevent_self_conversation
