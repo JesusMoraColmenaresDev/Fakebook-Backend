@@ -13,6 +13,9 @@ class Friendship < ApplicationRecord
   # Esto nos da métodos útiles como `friendship.pending?` o `friendship.accepted!`.
   enum :status, { pending: 0, accepted: 1 }
 
+  # Una amistad puede generar notificaciones (ej: solicitud enviada, solicitud aceptada).
+  has_many :notifications, as: :notifiable, dependent: :destroy
+
   # --- VALIDACIONES ---
   # 1. Evita que un usuario se envíe una solicitud a sí mismo.
   validate :prevent_self_friending

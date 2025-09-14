@@ -33,6 +33,24 @@ class SharesController < ApplicationController
     @share = current_user.shares.build(share_params)
 
     if @share.save
+      # --- Lógica de Notificación ---
+      # El dueño del post original
+      owner = @share.post.user
+      # El usuario que está compartiendo
+      actor = current_user
+
+      # Solo notificar si el que comparte no es el dueño del post original
+      if owner != actor
+        notification = Notification.create(
+          user: owner,
+          actor: actor,
+          action_type: :new_share,
+          notifiable: @share
+        )
+        # Encolamos el job para que se ejecute en segundo plano si la notificación se guardó.
+        NotificationBroadcastJob.perform_later(notification) if notification.persisted?
+      end
+      # --- Fin Lógica de Notificación ---
       # Devolvemos el 'share' creado, incluyendo la información del post y del usuario.
       render json: @share.as_json(json_options), status: :created
     else

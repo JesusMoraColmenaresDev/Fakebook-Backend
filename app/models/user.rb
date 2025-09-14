@@ -22,6 +22,9 @@ class User < ApplicationRecord
 
   has_many :shares, dependent: :destroy
 
+  # Un usuario puede tener muchas notificaciones.
+  has_many :notifications, dependent: :destroy
+
   # --- ASOCIACIONES DE MENSAJERÍA ---
   # Conversaciones que este usuario ha iniciado
   has_many :started_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy

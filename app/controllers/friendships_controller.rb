@@ -19,6 +19,15 @@ class FriendshipsController < ApplicationController
     @friendship = current_user.friendships.build(friendship_params)
 
     if @friendship.save
+      # --- Lógica de Notificación: Nueva solicitud de amistad ---
+      notification = Notification.create(
+        user: @friendship.friend, # El usuario que recibe la solicitud
+        actor: current_user,      # El usuario que envía la solicitud
+        action_type: :new_friendship_request,
+        notifiable: @friendship
+      )
+      NotificationBroadcastJob.perform_later(notification) if notification.persisted?
+      # --- Fin Lógica de Notificación ---
       render json: @friendship, status: :created
     else
       render json: { errors: @friendship.errors.full_messages }, status: :unprocessable_entity
@@ -30,6 +39,15 @@ class FriendshipsController < ApplicationController
     # Autorización: solo el receptor de la solicitud puede aceptarla.
     if @friendship.friend == current_user && @friendship.pending?
       @friendship.accepted!
+      # --- Lógica de Notificación: Solicitud aceptada ---
+      notification = Notification.create(
+        user: @friendship.user,   # Notificar al usuario que envió la solicitud originalmente
+        actor: current_user,      # El actor es quien acaba de aceptar
+        action_type: :accepted_friendship,
+        notifiable: @friendship
+      )
+      NotificationBroadcastJob.perform_later(notification) if notification.persisted?
+      # --- Fin Lógica de Notificación ---
       render json: @friendship, status: :ok
     else
       render json: { error: 'Not authorized to perform this action' }, status: :unauthorized

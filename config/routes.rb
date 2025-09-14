@@ -34,6 +34,11 @@ Rails.application.routes.draw do
     resources :comments, only: [:index, :create]
   end
 
+  # Rutas para notificaciones
+  resources :notifications, only: [:index, :update] do
+    patch :mark_all_as_read, on: :collection
+  end
+
   # --- RUTAS PARA MENSAJERÍA ---
   # Rutas para conversaciones y sus mensajes anidados
   resources :conversations, only: [:index, :create] do
