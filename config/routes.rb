@@ -34,6 +34,10 @@ Rails.application.routes.draw do
     resources :comments, only: [:index, :create]
   end
 
+  # Ruta para obtener un comentario específico por su ID
+  # GET /comments/123
+  resources :comments, only: [:show]
+
   # Rutas para notificaciones
   resources :notifications, only: [:index, :update] do
     patch :mark_all_as_read, on: :collection
