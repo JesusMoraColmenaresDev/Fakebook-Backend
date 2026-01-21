@@ -47,7 +47,11 @@ Rails.application.routes.draw do
   # Rutas para conversaciones y sus mensajes anidados
   resources :conversations, only: [:index, :create] do
     resources :messages, only: [:index]
+    
   end
+
+  patch '/messages/:id/read', to: 'messages#mark_as_read'
+
 
   # --- RUTA PARA ACTION CABLE ---
   mount ActionCable.server => '/cable'

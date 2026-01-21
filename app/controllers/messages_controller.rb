@@ -19,3 +19,25 @@ class MessagesController < ApplicationController
     render json: messages, include: { user: { only: [:id, :name, :last_name] } }
   end
 end
+
+
+class MessagesController < ApplicationController
+  before_action :authenticate_user!
+
+  # PATCH /messages/:id/read
+  def mark_as_read
+    message = Message.find(params[:id])
+    conversation = message.conversation
+
+    # Solo el receptor puede marcar como leído
+    if message.user_id == current_user.id
+      render json: { error: "No puedes marcar como leído tu propio mensaje." }, status: :forbidden
+      return
+    end
+
+    message.update!(read: true)
+    
+    # Recalcular unread_count para el usuario actu
+    render json: message
+  end
+end

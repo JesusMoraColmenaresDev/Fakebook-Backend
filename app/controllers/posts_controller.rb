@@ -31,7 +31,16 @@ class PostsController < ApplicationController
     # Usamos current_user.posts.build para asociar el post automáticamente.
     @post = current_user.posts.build(post_params)
     if @post.save
-      render json: @post, status: :created
+      render json: {
+        id: @post.id,
+        content: @post.content,
+        post_picture: @post.post_picture,
+        user: {
+          id: @post.user.id,
+          name: @post.user.name,
+          last_name: @post.user.last_name
+        }
+      }, status: :created
     else
       render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
     end
